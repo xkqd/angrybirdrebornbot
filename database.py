@@ -34,16 +34,22 @@ class Database:
         )
         return self.cursor.fetchone()
 
-    def update_balance(self, user_id: str, amount: int):
     # Обновляет баланс пользователя
-        self.cursor.execute(
-            "UPDATE users SET balance = balance + ? WHERE user_id = ?",
-            (amount, user_id)
-        )
+    def update_balance(self, user_id: str, amount: int, act: str):
+        if act == "+":
+            self.cursor.execute(
+                "UPDATE users SET balance = balance + ? WHERE user_id = ?",
+                (amount, user_id)
+            )
+        else:
+            self.cursor.execute(
+                "UPDATE users SET balance = balance - ? WHERE user_id = ?",
+                (amount, user_id)
+            )
         self.conn.commit()
 
-    def update_claim_time(self, user_id: str):
     # Обновляет время последнего получения награды
+    def update_claim_time(self, user_id: str):
         current_time = int(datetime.now().timestamp())
         self.cursor.execute(
             "UPDATE users SET last_claim = ? WHERE user_id = ?",
