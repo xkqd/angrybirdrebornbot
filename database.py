@@ -12,8 +12,12 @@ class Database:
         CREATE TABLE IF NOT EXISTS users (
             user_id TEXT,
             balance INTEGER,
-            last_claim INTEGER
-        )""")
+            last_claim INTEGER,
+            voice_time INTEGER,
+            last_voice_time INTEGER,
+            defeed BOOLEAN DEFAULT 0,
+            married_with INTEGER
+            )""")
         self.conn.commit()
 
     def add_user(self, user_id: str):
