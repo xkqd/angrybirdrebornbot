@@ -51,7 +51,7 @@ async def balance(interaction: Interaction):
     if user_data is None:
         await interaction.response.send_message("Что-то пошло не так")
     else:
-        await interaction.response.send_message(f"Ваш баланс: {user_data['balance']}") 
+        await interaction.response.send_message(f"Ваш баланс: {user_data['balance']}") # result[1] - balance пользователя interaction.user.id из БД
 
 # Команда для получения ежедневной награды
 @bot.tree.command(name="timely", description="Получить ежедневную награду")
@@ -59,12 +59,12 @@ async def timely(interaction: Interaction):
     user_data = db.get_user(str(interaction.user.id))
         
     current_time = int(datetime.now().timestamp())
-    last_claim = user_data[2]  # last_claim из БД
+    last_claim = user_data['last_claim']
     time_passed = current_time - last_claim
     
     if time_passed >= 43200:  # 12 часов в секундах
         reward = 50
-        db.update_balance(str(interaction.user.id), reward)
+        db.update_balance(str(interaction.user.id), reward, "+")
         db.update_claim_time(str(interaction.user.id))
         await interaction.response.send_message(f"Вы получили {reward} монет!")
     else:
