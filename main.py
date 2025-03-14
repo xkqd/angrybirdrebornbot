@@ -75,6 +75,31 @@ async def timely(interaction: Interaction):
             f"Возвращайтесь через {hours} часов {minutes} минут"
         )
 
+# Команда для перевода монет другому пользователю
+@bot.tree.command(name="transfer", description="Перевести монеты")
+async def transfer(interaction: Interaction, target: User, amount: int):
+    if amount < 1:
+        await interaction.response.send_message("Сумма должна быть больше 0")
+        return
+    
+    user_data = db.get_user(str(interaction.user.id))
+    target_data = db.get_user(str(target.id))
+    
+    # Расчитываем комиссию и финальную сумму
+    commission = int(amount * 0.1)  # 10% от суммы
+    final_amount = amount - commission
+
+    if user_data['balance'] < amount:
+        await interaction.response.send_message("У вас недостаточно монет")
+    else:
+        db.update_balance(str(interaction.user.id), -amount)
+        db.update_balance(str(target.id), final_amount)  # Используем final_amount вместо amount
+        await interaction.response.send_message(
+            f"Вы перевели {amount} монет\n"
+            f"Комиссия: {commission} монет\n"
+            f"Получатель {target.mention} получил: {final_amount} монет"
+        )
+
 @bot.tree.error
 async def on_error(interaction: Interaction, error):
     await interaction.response.send_message(
