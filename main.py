@@ -38,23 +38,23 @@ async def on_ready():
                         db.add_user(str(member.id))
                         added_users += 1
         
-        print(f'Бот {bot.user} успешно запущен')
-        print(f'Добавлено {added_users} новых пользователей в базу данных')
+        print(f'Бот {bot.user} успешно запущен.')
+        print(f'Добавлено {added_users} новых пользователей в базу данных.')
         
     except Exception as e:
         print(f'Ошибка при инициализации: {str(e)}')
         
 # Команда для проверки баланса
-@bot.tree.command(name="balance", description="Проверить баланс")
+@bot.tree.command(name="balance", description="Проверить баланс.")
 async def balance(interaction: Interaction):
     user_data = db.get_user(str(interaction.user.id))
     if user_data is None:
-        await interaction.response.send_message("Что-то пошло не так")
+        await interaction.response.send_message("Что-то пошло не так.")
     else:
-        await interaction.response.send_message(f"Ваш баланс: {user_data['balance']}") # result[1] - balance пользователя interaction.user.id из БД
+        await interaction.response.send_message(f"Ваш баланс: {user_data['balance']}.") # result[1] - balance пользователя interaction.user.id из БД
 
 # Команда для получения ежедневной награды
-@bot.tree.command(name="timely", description="Получить ежедневную награду")
+@bot.tree.command(name="timely", description="Получить ежедневную награду.")
 async def timely(interaction: Interaction):
     user_data = db.get_user(str(interaction.user.id))
         
@@ -71,14 +71,14 @@ async def timely(interaction: Interaction):
         hours = remaining_time // 3600
         minutes = (remaining_time % 3600) // 60
         await interaction.response.send_message(
-            f"Возвращайтесь через {hours} часов {minutes} минут"
+            f"Возвращайтесь через {hours} часов {minutes} минут."
         )
 
 # Команда для перевода монет другому пользователю
-@bot.tree.command(name="transfer", description="Перевести монеты")
+@bot.tree.command(name="transfer", description="Перевести монеты.")
 async def transfer(interaction: Interaction, target: User, amount: int):
     if amount < 10:
-        await interaction.response.send_message("Сумма должна быть больше 9")
+        await interaction.response.send_message("Сумма должна быть больше 9.")
         return
     
     user_data = db.get_user(str(interaction.user.id))
@@ -87,20 +87,20 @@ async def transfer(interaction: Interaction, target: User, amount: int):
     final_amount = amount*0.9
 
     if user_data['balance'] < amount:
-        await interaction.response.send_message("У вас недостаточно монет")
+        await interaction.response.send_message("У вас недостаточно монет.")
     else:
         db.update_balance(str(interaction.user.id), amount, "-")
         db.update_balance(str(target.id), final_amount, "+")
         await interaction.response.send_message(
-            f"Вы перевели {amount} монет\n"
-            f"Комиссия: {amount*0.1} монет\n"
-            f"Получатель {target.mention} получил: {final_amount} монет"
+            f"Вы перевели {amount} монет.\n"
+            f"Комиссия: {amount*0.1} монет.\n"
+            f"Получатель {target.mention} получил: {final_amount} монет."
         )
 
 @bot.tree.error
 async def on_error(interaction: Interaction, error):
     await interaction.response.send_message(
-        f"Произошла ошибка: {str(error)}", 
+        f"Произошла ошибка: {str(error)}.", 
         ephemeral=True
     )
 
