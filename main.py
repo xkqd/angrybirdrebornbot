@@ -61,43 +61,94 @@ async def command_timely(interaction: Interaction):
     current_time = int(datetime.now().timestamp())
     last_claim = user_data['last_claim']
     time_passed = current_time - last_claim
-    
+    # Эмбед для вывода награды
+    user_avatar = interaction.user.avatar.url
+    embed = discord.Embed(
+                title="Ежедневная награда.",
+                description="Вы получили 50 монет! Возвращайтесь через 12 часов.",
+                color=discord.Color.green()
+                )
+    if user_avatar is not None:
+        embed.set_thumbnail(url=user_avatar)
     if time_passed >= 43200:  # 12 часов в секундах
         db.update_balance(str(interaction.user.id), 50, "+")
         db.update_claim_time(str(interaction.user.id))
-        await interaction.response.send_message(f"Вы получили 50 монет!")
+        await interaction.response.send_message(embed=embed)
     else:
         remaining_time = 43200 - time_passed
         hours = remaining_time // 3600
         minutes = (remaining_time % 3600) // 60
-        await interaction.response.send_message(
-            f"Возвращайтесь через {hours} часов {minutes} минут."
-        )
+        embed.description = f"Вы уже получили награду. Возвращайтесь через {hours} часов {minutes} минут."
+        await interaction.response.send_message(embed=embed)
 
 # Команда для перевода монет другому пользователю
-@bot.tree.command(name="give", description="Перевести монеты.")
+@bot.tree.command(name="give", description="Перевести монеты другому пользователю.")
 async def command_give(interaction: Interaction, target: User, amount: int):
-    if amount < 10:
-        await interaction.response.send_message("Сумма должна быть больше 9.")
-        return
-    
     user_data = db.get_user(str(interaction.user.id))
-    # Эмбед для вывода перевода
+    target_data = db.get_user(str(target.id))
+
+    user_avatar = interaction.user.avatar.url
+
+    confirm_button = Button(style=ButtonStyle.green, label="Подтвердить")
+    cancel_button = Button(style=ButtonStyle.red, label="Отмена")
+
+    buttons = View()
+
+    # Ответ на нажатие зеленой кнопки
+    async def confirm_callback(interaction: Interaction):
+        if user_data['user_id'] != interaction.user.id:
+            await interaction.response.send_message(embed=discord.Embed(
+                title="Ошибка!",
+                description="Вы не можете подтвердить перевод другого пользователя.",
+                colour=discord.Colour.red()),ephemeral=True)
+            return
+        if user_data['balance'] >= amount:
+            embed = discord.Embed(
+                title="Успешно!",
+                description=f"Вы успешно перевели пользователю {target.mention} {amount} монет. Комиссия 10% ({int(amount*0.1)} монет) удержана.",
+                color=discord.Color.green()
+            )
+            if user_avatar is not None:
+                embed.set_thumbnail(url=user_avatar)
+            db.update_balance(str(interaction.user.id), amount, "-")
+            db.update_balance(str(target.id), int(amount*0.9), "+")
+            await interaction.response.edit_message(embed=embed,view=None)
+        else:
+            await interaction.response.edit_message(embed=discord.Embed(
+                title="Ошибка!",
+                description="У вас недостаточно монет для перевода.",
+                colour=discord.Colour.red()),view=None)
+            
+    # Ответ на нажатие красной кнопки
+    async def cancel_callback(interaction: Interaction):
+        if user_data['user_id'] != interaction.user.id:
+            await interaction.response.send_message(embed=discord.Embed(
+                title="Ошибка!",
+                description="Вы не можете отменить перевод другого пользователя.",
+                colour=discord.Colour.red()),ephemeral=True)
+            return
+        
+        await interaction.response.edit_message(embed=discord.Embed(
+            title="Отменено!",
+            description=f"Перевод пользователю {target.mention} отменен.",
+            colour=discord.Colour.red()),view=None)
+    
+
+
+
+    confirm_button.callback = confirm_callback
+    cancel_button.callback = cancel_callback
+    
+    buttons.add_item(confirm_button)
+    buttons.add_item(cancel_button)
     embed = discord.Embed(
-        title="Перевод монет.",
-        description=f"""Вы перевели {amount} монет пользователю {target.mention}.\n
-        Комиссия: {int(amount*0.1)} монет.\n
-        Получатель получит: {int(amount*0.9)} монет.""",
-        color=discord.Color.green()
-    )
-    # Расчитываем финальную сумму
-    final_amount = amount*0.9
-    if user_data['balance'] < amount:
-        await interaction.response.send_message("У вас недостаточно монет.",embed)
-    else:
-        db.update_balance(str(interaction.user.id), amount, "-")
-        db.update_balance(str(target.id), final_amount, "+")
-        await interaction.response.send_message(embed=embed,ephemeral=True)
+            title="Подтверждение перевода.",
+            description=f"Вы уверены, что хотите перевести {amount} монет пользователю {target.mention}, включая комиссию 10%?",
+            color=discord.Color.green()
+        )
+    if user_avatar is not None: 
+        embed.set_thumbnail(url=user_avatar)
+    await interaction.response.send_message(embed=embed, view=buttons)
 
 @bot.tree.error
 async def on_error(interaction: Interaction, error):
