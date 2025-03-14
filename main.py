@@ -84,18 +84,20 @@ async def command_give(interaction: Interaction, target: User, amount: int):
     user_data = db.get_user(str(interaction.user.id))
     
     # Расчитываем комиссию и финальную сумму
+    embed = discord.Embed(
+        title="Перевод монет.",
+        description=f"""Вы перевели {amount} монет пользователю {target.mention}.\n
+        Комиссия: {int(amount*0.1)} монет.\n
+        Получатель получит: {int(amount*0.9)} монет.""",
+        color=discord.Color.green()
+    )
     final_amount = amount*0.9
-
     if user_data['balance'] < amount:
-        await interaction.response.send_message("У вас недостаточно монет.")
+        await interaction.response.send_message("У вас недостаточно монет.",embed)
     else:
         db.update_balance(str(interaction.user.id), amount, "-")
         db.update_balance(str(target.id), final_amount, "+")
-        await interaction.response.send_message(
-            f"Вы перевели {amount} монет.\n"
-            f"Комиссия: {amount*0.1} монет.\n"
-            f"Получатель {target.mention} получил: {final_amount} монет."
-        )
+        await interaction.response.send_message(embed=embed,ephemeral=True)
 
 @bot.tree.error
 async def on_error(interaction: Interaction, error):
