@@ -4,20 +4,13 @@ from datetime import datetime
 class Database:
     def __init__(self):
         self.conn = sqlite3.connect('database.db')
+        self.conn.row_factory = sqlite3.Row
         self.cursor = self.conn.cursor()
         self.init_db()
 
     def init_db(self):
-        self.cursor.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            user_id TEXT,
-            balance INTEGER,
-            last_claim INTEGER,
-            voice_time INTEGER,
-            last_voice_time INTEGER,
-            defeed BOOLEAN DEFAULT 0,
-            married_with INTEGER
-            )""")
+        with open('schema.sql','r') as file:
+            self.cursor.execute(file.read())   
         self.conn.commit()
 
     def add_user(self, user_id: str):
@@ -28,7 +21,7 @@ class Database:
         )
         if not self.cursor.fetchone():
             self.cursor.execute(
-                "INSERT INTO users (user_id, balance, last_claim) VALUES (?, 0, 0)",
+                "INSERT INTO users (user_id, balance, last_claim, voice_time, last_voice_time, defeed, married_with) VALUES (?, 0, 0, 0, 0, 0, 0)",
                 (user_id,)
             )
             self.conn.commit()
