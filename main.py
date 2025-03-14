@@ -46,7 +46,7 @@ async def on_ready():
         
 # Команда для проверки баланса
 @bot.tree.command(name="balance", description="Проверить баланс.")
-async def balance(interaction: Interaction):
+async def command_balance(interaction: Interaction):
     user_data = db.get_user(str(interaction.user.id))
     if user_data is None:
         await interaction.response.send_message("Что-то пошло не так.")
@@ -55,7 +55,7 @@ async def balance(interaction: Interaction):
 
 # Команда для получения ежедневной награды
 @bot.tree.command(name="timely", description="Получить ежедневную награду.")
-async def timely(interaction: Interaction):
+async def command_timely(interaction: Interaction):
     user_data = db.get_user(str(interaction.user.id))
         
     current_time = int(datetime.now().timestamp())
@@ -75,8 +75,8 @@ async def timely(interaction: Interaction):
         )
 
 # Команда для перевода монет другому пользователю
-@bot.tree.command(name="transfer", description="Перевести монеты.")
-async def transfer(interaction: Interaction, target: User, amount: int):
+@bot.tree.command(name="give", description="Перевести монеты.")
+async def command_give(interaction: Interaction, target: User, amount: int):
     if amount < 10:
         await interaction.response.send_message("Сумма должна быть больше 9.")
         return
