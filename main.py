@@ -47,11 +47,11 @@ async def on_ready():
 # Команда для проверки баланса
 @bot.tree.command(name="balance", description="Проверить баланс")
 async def balance(interaction: Interaction):
-    result = db.get_user(str(interaction.user.id))
-    if result is None:
+    user_data = db.get_user(str(interaction.user.id))
+    if user_data is None:
         await interaction.response.send_message("Что-то пошло не так")
     else:
-        await interaction.response.send_message(f"Ваш баланс: {result['balance']}") # result[1] - balance пользователя interaction.user.id из БД
+        await interaction.response.send_message(f"Ваш баланс: {user_data['balance']}") 
 
 # Команда для получения ежедневной награды
 @bot.tree.command(name="timely", description="Получить ежедневную награду")
