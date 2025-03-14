@@ -78,8 +78,8 @@ async def timely(interaction: Interaction):
 # Команда для перевода монет другому пользователю
 @bot.tree.command(name="transfer", description="Перевести монеты")
 async def transfer(interaction: Interaction, target: User, amount: int):
-    if amount < 1:
-        await interaction.response.send_message("Сумма должна быть больше 0")
+    if amount < 10:
+        await interaction.response.send_message("Сумма должна быть больше 9")
         return
     
     user_data = db.get_user(str(interaction.user.id))
