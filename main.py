@@ -82,8 +82,7 @@ async def command_give(interaction: Interaction, target: User, amount: int):
         return
     
     user_data = db.get_user(str(interaction.user.id))
-    
-    # Расчитываем комиссию и финальную сумму
+    # Эмбед для вывода перевода
     embed = discord.Embed(
         title="Перевод монет.",
         description=f"""Вы перевели {amount} монет пользователю {target.mention}.\n
@@ -91,6 +90,7 @@ async def command_give(interaction: Interaction, target: User, amount: int):
         Получатель получит: {int(amount*0.9)} монет.""",
         color=discord.Color.green()
     )
+    # Расчитываем финальную сумму
     final_amount = amount*0.9
     if user_data['balance'] < amount:
         await interaction.response.send_message("У вас недостаточно монет.",embed)
