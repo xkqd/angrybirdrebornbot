@@ -63,10 +63,9 @@ async def timely(interaction: Interaction):
     time_passed = current_time - last_claim
     
     if time_passed >= 43200:  # 12 часов в секундах
-        reward = 50
-        db.update_balance(str(interaction.user.id), reward, "+")
+        db.update_balance(str(interaction.user.id), 50, "+")
         db.update_claim_time(str(interaction.user.id))
-        await interaction.response.send_message(f"Вы получили {reward} монет!")
+        await interaction.response.send_message(f"Вы получили 50 монет!")
     else:
         remaining_time = 43200 - time_passed
         hours = remaining_time // 3600
