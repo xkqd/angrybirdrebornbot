@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from discord.ui import Button, View
 from discord.ext import commands
 from dotenv import load_dotenv
+from discord import app_commands
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -158,7 +159,17 @@ async def command_timely(interaction: Interaction):
 
 # Команда для перевода монет другому пользователю
 @bot.tree.command(name="give", description="Перевести монеты другому пользователю.")
-async def command_give(interaction: Interaction, target: User, amount: int):
+async def command_give(interaction: Interaction, target: User, amount: app_commands.Range[int, 10]):
+    # Объединенная проверка на перевод самому себе и ботам
+    if target.id == interaction.user.id or target.bot:
+        error_msg = "Вы не можете перевести монеты самому себе!" if target.id == interaction.user.id else "Вы не можете перевести монеты боту!"
+        await interaction.response.send_message(embed=discord.Embed(
+            title="Ошибка!",
+            description=error_msg,
+            colour=discord.Colour.red()
+        ), ephemeral=True)
+        return
+
     user_data = db.get_user(str(interaction.user.id))
     target_data = db.get_user(str(target.id))
     user_avatar = interaction.user.avatar.url
@@ -188,7 +199,7 @@ async def command_give(interaction: Interaction, target: User, amount: int):
                 db.update_balance(str(interaction.user.id), amount, "-")
                 db.update_balance(str(target.id), int(amount*0.9), "+")
                 await button_interaction.response.edit_message(embed=embed,view=None)
-            else:
+            else:   
                 await button_interaction.response.edit_message(embed=discord.Embed(
                     title="Ошибка!",
                     description="У вас недостаточно монет для перевода.",
@@ -212,7 +223,7 @@ async def command_give(interaction: Interaction, target: User, amount: int):
     view = TransferView()
     embed = discord.Embed(
         title="Подтверждение перевода.",
-        description=f"Вы уверены, что хотите перевести {amount} монет пользователю {target.mention}, включая комиссию 10%?",
+        description=f"{interaction.user.mention}, вы уверены что хотите передать {int(amount*0.9)} <a:coins:1350287791254274078> \nвключая комиссию 10% пользователю {target.mention}?",
         color=discord.Color.green()
     )
     if user_avatar is not None:
