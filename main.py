@@ -77,8 +77,6 @@ async def on_voice_state_update(member, before, after):
     if before.channel.id == 1329128817452908646: # Если пользователь зашел в канал "спальня"
         return
 
-
-
 @bot.tree.command(name="profile", description="Посмотреть профиль пользователя.")
 async def command_profile(interaction: Interaction, user: User = None):
     if user is None:
