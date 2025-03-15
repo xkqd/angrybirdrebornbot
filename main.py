@@ -84,7 +84,7 @@ async def command_profile(interaction: Interaction, user: User = None):
         user_avatar = interaction.user.avatar.url
         embed = discord.Embed(
             title=f"Профиль — {interaction.user.name}",
-            description=f"Баланс: {user_data['balance']} монет.\nГолосовая активность: {user_data['voice_time']} мин.\nСообщений: {user_data['messages']}",
+            description=f"Баланс: {user_data['balance']} <a:coins:1350287791254274078>\nГолосовая активность: {user_data['voice_time']} мин.\nСообщений: {user_data['messages']}",
             color=discord.Color.green()
         )
         if user_avatar is not None:
@@ -109,7 +109,7 @@ async def command_balance(interaction: Interaction,user: User = None):
         user_avatar = interaction.user.avatar.url
         embed = discord.Embed(
             title=f"Баланс — {interaction.user.name}",
-            description=f"Ваш баланс: {user_data['balance']} монет.",
+            description=f"Ваш баланс: {user_data['balance']} <a:coins:1350287791254274078>",
             color=discord.Color.green()
         )
         if user_avatar is not None:
@@ -139,7 +139,7 @@ async def command_timely(interaction: Interaction):
     user_avatar = interaction.user.avatar.url
     embed = discord.Embed(
                 title="Временная награда.",
-                description=f"{interaction.user.mention}, вы забрали свои 50 монет! Возвращайтесь через 12 часов.",
+                description=f"{interaction.user.mention}, вы забрали свои 50 <a:coins:1350287791254274078> Возвращайтесь через 12 часов.",
                 color=discord.Color.green()
                 )
     if user_avatar is not None:
