@@ -152,7 +152,8 @@ async def command_timely(interaction: Interaction):
         remaining_time = 43200 - time_passed
         hours = remaining_time // 3600
         minutes = (remaining_time % 3600) // 60
-        embed.description = f"{interaction.user.mention}, вы не можете забрать награду. Возвращайтесь через {hours} часов {minutes} минут."
+        next_claim_time = current_time + remaining_time
+        embed.description = f"{interaction.user.mention}, вы не можете забрать награду. Возвращайтесь <t:{next_claim_time}:R>."
         embed.color = discord.Color.red()
         await interaction.response.send_message(embed=embed)
 
