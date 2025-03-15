@@ -43,15 +43,57 @@ async def on_ready():
         
     except Exception as e:
         print(f'Ошибка при инициализации: {str(e)}')
+
+@bot.tree.command(name="profile", description="Посмотреть профиль пользователя.")
+async def command_profile(interaction: Interaction, user: User = None):
+    if user is None:
+        user_data = db.get_user(str(interaction.user.id))
+        user_avatar = interaction.user.avatar.url
+        embed = discord.Embed(
+            title=f"Профиль — {interaction.user.name}",
+            description=f"Баланс: {user_data['balance']} монет.\nГолосовая активность: {user_data['voice_time']} мин.",
+            color=discord.Color.green()
+        )
+        if user_avatar is not None:
+            embed.set_thumbnail(url=user_avatar)
+        await interaction.response.send_message(embed=embed)
+        return
+    user_data = db.get_user(str(user.id))
+    user_avatar = user.avatar.url
+    embed = discord.Embed(
+        title=f"Профиль — {user.name}",
+        description=f"Баланс: {user_data['balance']} монет.\nГолосовая активность: {user_data['voice_time']} мин.",
+        color=discord.Color.green())
+    if user_avatar is not None:
+        embed.set_thumbnail(url=user_avatar)
+    await interaction.response.send_message(embed=embed)
+        
         
 # Команда для проверки баланса
 @bot.tree.command(name="balance", description="Проверить баланс.")
-async def command_balance(interaction: Interaction):
-    user_data = db.get_user(str(interaction.user.id))
-    if user_data is None:
-        await interaction.response.send_message("Что-то пошло не так.")
-    else:
-        await interaction.response.send_message(f"Ваш баланс: {user_data['balance']}.") # result[1] - balance пользователя interaction.user.id из БД
+async def command_balance(interaction: Interaction,user: User = None):
+    if user is None:
+        user_data = db.get_user(str(interaction.user.id))
+        user_avatar = interaction.user.avatar.url
+        embed = discord.Embed(
+            title=f"Баланс — {interaction.user.name}",
+            description=f"Ваш баланс: {user_data['balance']} монет.",
+            color=discord.Color.green()
+        )
+        if user_avatar is not None:
+            embed.set_thumbnail(url=user_avatar)
+        await interaction.response.send_message(embed=embed)
+        return
+    user_data = db.get_user(str(user.id))
+    user_avatar = user.avatar.url
+    embed = discord.Embed(
+        title=f"Баланс — {user.name}",
+        description=f"Баланс: {user_data['balance']} монет.",
+        color=discord.Color.green()
+    )
+    if user_avatar is not None:
+        embed.set_thumbnail(url=user_avatar)
+    await interaction.response.send_message(embed=embed)
 
 # Команда для получения ежедневной награды
 @bot.tree.command(name="timely", description="Получить ежедневную награду.")
