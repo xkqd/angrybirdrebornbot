@@ -47,6 +47,7 @@ class Database:
                 (amount, user_id)
             )
         self.conn.commit()
+    # Обновляет кол-во сообщений пользователя
     def add_message_to_counter(self,user_id: str):
         self.cursor.execute(
             "UPDATE users SET messages = messages + 1 WHERE user_id = ?",
@@ -60,5 +61,25 @@ class Database:
         self.cursor.execute(
             "UPDATE users SET last_claim = ? WHERE user_id = ?",
             (current_time, user_id)
+        )
+        self.conn.commit()
+
+    # Обновляет когда В ПОСЛЕДНИЙ РАЗ пользователь зашел в войс
+    def update_last_voice_time(self, user_id: str):
+        current_time = int(datetime.now().timestamp())
+        self.cursor.execute(
+            "UPDATE users SET last_voice_time = ? WHERE user_id = ?",
+            (current_time, user_id)
+        )
+        self.conn.commit()
+
+    # Обновляет общее время проведенное в войсе (в минутах)
+    def update_voice_time(self, user_id: str):
+        current_time = int(datetime.now().timestamp())
+        user_data = self.get_user(user_id)
+        last_voice_time = user_data['last_voice_time']
+        self.cursor.execute(
+            "UPDATE users SET voice_time = voice_time + ? WHERE user_id = ?",
+            ((current_time - last_voice_time)//60, user_id)
         )
         self.conn.commit()

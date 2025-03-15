@@ -51,6 +51,33 @@ async def on_message(message):
     db.add_message_to_counter(str(message.author.id))
     await bot.process_commands(message)
 
+@bot.event
+async def on_voice_state_update(member, before, after):
+    if member.bot: # Пропускаем ботов
+        return
+    
+    if before.channel is None and after.self_deaf is False: # Пользователь зашел в голосовой канал не замученным
+        db.update_last_voice_time(str(member.id))
+        return
+    
+    if before.self_deaf is True and after.self_deaf is False: # Пользователь размутился
+        db.update_last_voice_time(str(member.id))
+        return
+    
+    if before.self_deaf is False and after.self_deaf is True: # Пользователь замутился
+        db.update_voice_time(str(member.id))
+        db.update_last_voice_time(str(member.id))
+        return
+    
+    if before.channel is True and after.channel is None: # Пользователь вышел из войса
+        db.update_voice_time(str(member.id))     
+        return
+    
+    if before.channel.id == 1329128817452908646: # Если пользователь зашел в канал "спальня"
+        return
+
+
+
 @bot.tree.command(name="profile", description="Посмотреть профиль пользователя.")
 async def command_profile(interaction: Interaction, user: User = None):
     if user is None:
@@ -113,8 +140,8 @@ async def command_timely(interaction: Interaction):
     # Эмбед для вывода награды
     user_avatar = interaction.user.avatar.url
     embed = discord.Embed(
-                title="Ежедневная награда.",
-                description="Вы получили 50 монет! Возвращайтесь через 12 часов.",
+                title="Временная награда.",
+                description=f"{interaction.user.mention}, вы забрали свои 50 монет! Возвращайтесь через 12 часов.",
                 color=discord.Color.green()
                 )
     if user_avatar is not None:
@@ -127,7 +154,8 @@ async def command_timely(interaction: Interaction):
         remaining_time = 43200 - time_passed
         hours = remaining_time // 3600
         minutes = (remaining_time % 3600) // 60
-        embed.description = f"Вы уже получили награду. Возвращайтесь через {hours} часов {minutes} минут."
+        embed.description = f"{interaction.user.mention}, вы не можете забрать награду. Возвращайтесь через {hours} часов {minutes} минут."
+        embed.color = discord.Color.red()
         await interaction.response.send_message(embed=embed)
 
 # Команда для перевода монет другому пользователю
