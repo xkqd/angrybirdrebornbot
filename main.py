@@ -1,11 +1,12 @@
 import discord
+import os
+
 from database import Database
 from discord import *
 from datetime import datetime, timezone
 from discord.ui import Button, View
 from discord.ext import commands
 from dotenv import load_dotenv
-import os
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -101,8 +102,7 @@ async def command_profile(interaction: Interaction, user: User = None):
     if user_avatar is not None:
         embed.set_thumbnail(url=user_avatar)
     await interaction.response.send_message(embed=embed)
-        
-        
+
 # Команда для проверки баланса
 @bot.tree.command(name="balance", description="Проверить баланс.")
 async def command_balance(interaction: Interaction,user: User = None):

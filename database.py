@@ -33,6 +33,12 @@ class Database:
             (user_id,)
         )
         return self.cursor.fetchone()
+    # Сортирует пользователей в таблице по столбцу и возвращает всю таблицу в порядке убывания
+    def get_all_users_ordered_by(self, column: str):
+        self.cursor.execute(
+            f"SELECT * FROM users ORDER BY ? DESC",(column,)
+        )
+        return self.cursor.fetchall()
 
     # Обновляет баланс пользователя
     def update_balance(self, user_id: str, amount: int, act: str):
