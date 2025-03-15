@@ -13,18 +13,14 @@ class Database:
             self.cursor.execute(file.read())   
         self.conn.commit()
 
+    # Добавляет нового пользователя в БД используя схему из schema.sql
     def add_user(self, user_id: str):
-    # Добавляет нового пользователя в БД
+        """Добавляет нового пользователя в БД"""
         self.cursor.execute(
-            "SELECT user_id FROM users WHERE user_id = ?", 
+            "INSERT OR IGNORE INTO users (user_id) VALUES (?)",
             (user_id,)
         )
-        if not self.cursor.fetchone():
-            self.cursor.execute(
-                "INSERT INTO users (user_id, balance, last_claim, voice_time, last_voice_time, defeed, married_with) VALUES (?, 0, 0, 0, 0, 0, 0)",
-                (user_id,)
-            )
-            self.conn.commit()
+        self.conn.commit()
    
     def get_user(self, user_id: str):
     # Получает данные пользователя
@@ -33,6 +29,7 @@ class Database:
             (user_id,)
         )
         return self.cursor.fetchone()
+    
     # Сортирует пользователей в таблице по столбцу и возвращает всю таблицу в порядке убывания
     def get_all_users_ordered_by(self, column: str):
         self.cursor.execute(
