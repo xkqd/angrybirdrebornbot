@@ -44,6 +44,13 @@ async def on_ready():
     except Exception as e:
         print(f'Ошибка при инициализации: {str(e)}')
 
+@bot.event
+async def on_message(message):
+    if message.author.bot:
+        return
+    db.add_message_to_counter(str(message.author.id))
+    await bot.process_commands(message)
+
 @bot.tree.command(name="profile", description="Посмотреть профиль пользователя.")
 async def command_profile(interaction: Interaction, user: User = None):
     if user is None:
@@ -51,7 +58,7 @@ async def command_profile(interaction: Interaction, user: User = None):
         user_avatar = interaction.user.avatar.url
         embed = discord.Embed(
             title=f"Профиль — {interaction.user.name}",
-            description=f"Баланс: {user_data['balance']} монет.\nГолосовая активность: {user_data['voice_time']} мин.",
+            description=f"Баланс: {user_data['balance']} монет.\nГолосовая активность: {user_data['voice_time']} мин.\nСообщений: {user_data['messages']}",
             color=discord.Color.green()
         )
         if user_avatar is not None:

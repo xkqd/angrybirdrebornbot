@@ -47,6 +47,12 @@ class Database:
                 (amount, user_id)
             )
         self.conn.commit()
+    def add_message_to_counter(self,user_id: str):
+        self.cursor.execute(
+            "UPDATE users SET messages = messages + 1 WHERE user_id = ?",
+            (user_id,)
+        )
+        self.conn.commit()
 
     # Обновляет время последнего получения награды
     def update_claim_time(self, user_id: str):
