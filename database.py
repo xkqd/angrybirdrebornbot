@@ -15,50 +15,12 @@ class Database:
 
     # Добавляет нового пользователя в БД используя схему из schema.sql
     def add_user(self, user_id: str):
-        
-        # Проверяем, существует ли пользователь
+        """Добавляет нового пользователя в БД"""
         self.cursor.execute(
-            "SELECT user_id FROM users WHERE user_id = ?", 
+            "INSERT OR IGNORE INTO users (user_id) VALUES (?)",
             (user_id,)
         )
-        if not self.cursor.fetchone():
-            # Получаем информацию о столбцах из схемы
-            self.cursor.execute("PRAGMA table_info(users)")
-            columns = self.cursor.fetchall()
-            
-            # Создаем пустые списки для имен столбцов и значений
-            column_names = []
-            values = []
-            
-            # Заполняем список имен столбцов
-            for column in columns:
-                column_names.append(column['name'])
-                values.append('?')
-            
-            # Создаем словарь со значениями по умолчанию
-            default_values = {'user_id': user_id}
-            
-            # Заполняем значения для остальных столбцов
-            values_to_insert = []
-            for column_name in column_names:
-                if column_name in default_values:
-                    values_to_insert.append(default_values[column_name])
-                else:
-                    # Ищем значение по умолчанию для текущего столбца
-                    for column in columns:
-                        if column['name'] == column_name:
-                            default_value = column['dflt_value'] or 0
-                            values_to_insert.append(default_value)
-                            break
-            
-            # Формируем SQL запрос
-            columns_string = ','.join(column_names)
-            values_string = ','.join(values)
-            sql = f"INSERT INTO users ({columns_string}) VALUES ({values_string})"
-            
-            # Выполняем запрос
-            self.cursor.execute(sql, values_to_insert)
-            self.conn.commit()
+        self.conn.commit()
    
     def get_user(self, user_id: str):
     # Получает данные пользователя
