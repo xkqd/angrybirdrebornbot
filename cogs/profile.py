@@ -8,7 +8,7 @@ class Profile(commands.Cog):
         self.db = bot.db
 
     @app_commands.command(name="profile", description="Посмотреть профиль пользователя.")
-    async def profile(self, interaction: Interaction, user: User = None):
+    async def command_profile(self, interaction: Interaction, user: User = None):
         if user is None:
             user_data = self.db.get_user(str(interaction.user.id))
             user_avatar = interaction.user.avatar.url

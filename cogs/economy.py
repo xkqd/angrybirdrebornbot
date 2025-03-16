@@ -9,7 +9,7 @@ class Economy(commands.Cog):
         self.db = bot.db
 
     @app_commands.command(name="balance", description="Проверить баланс.")
-    async def balance(self, interaction: Interaction, user: User = None):
+    async def command_balance(self, interaction: Interaction, user: User = None):
         if user is None:
             user = interaction.user
         user_data = self.db.get_user(str(user.id))

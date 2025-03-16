@@ -31,9 +31,9 @@ class Database:
         return self.cursor.fetchone()
     
     # Сортирует пользователей в таблице по столбцу и возвращает всю таблицу в порядке убывания
-    def get_all_users_ordered_by(self, column: str):
+    def get_all_users(self):
         self.cursor.execute(
-            f"SELECT * FROM users ORDER BY ? DESC",(column,)
+            f"SELECT * FROM users"
         )
         return self.cursor.fetchall()
 
