@@ -1,4 +1,7 @@
 import discord
+import random
+import asyncio
+
 from discord import app_commands, Interaction, User, ui
 from discord.ext import commands
 from datetime import datetime
@@ -74,11 +77,12 @@ class Economy(commands.Cog):
 
         # Создаем класс для кнопок
         class TransferView(discord.ui.View):
-            def __init__(self):
+            def __init__(self, db):
                 super().__init__(timeout=180)  # 3 минуты
+                self.db = db
 
             @discord.ui.button(label="Подтвердить", style=discord.ButtonStyle.green)
-            async def confirm(self, button_interaction: Interaction, button: discord.ui.Button):
+            async def confirm_callback(self,button_interaction: Interaction,button: discord.ui.Button):
                 # Остальной код confirm_callback без изменений
                 if user_data['user_id'] != button_interaction.user.id:
                     await button_interaction.response.send_message(embed=discord.Embed(
@@ -104,7 +108,7 @@ class Economy(commands.Cog):
                         colour=discord.Colour.red()),view=None)
 
             @discord.ui.button(label="Отмена", style=discord.ButtonStyle.red)
-            async def cancel(self, button_interaction: Interaction, button: discord.ui.Button):
+            async def cancel_callback(self,button_interaction:Interaction,button: discord.ui.Button, ):
                 # Остальной код cancel_callback без изменений
                 if user_data['user_id'] != button_interaction.user.id:
                     await button_interaction.response.send_message(embed=discord.Embed(
@@ -118,7 +122,7 @@ class Economy(commands.Cog):
                     description=f"Перевод пользователю {target.mention} отменен.",
                     colour=discord.Colour.red()),view=None)
 
-        view = TransferView()
+        view = TransferView(self.db)
         embed = discord.Embed(
             title="Подтверждение перевода.",
             description=f"{interaction.user.mention}, вы уверены что хотите передать {int(amount*0.9)} <a:coins:1350287791254274078> \nвключая комиссию 10% пользователю {target.mention}?",
@@ -128,10 +132,109 @@ class Economy(commands.Cog):
             embed.set_thumbnail(url=user_avatar)
         await interaction.response.send_message(embed=embed, view=view)
 
+    # Команда для дуэли на монеты с другим пользователем
+    @app_commands.command(name="duel", description="Дуэль на монеты с другим пользователем.")
+    async def command_duel(self, interaction: Interaction, target: User, amount: int):
+        duel_sender = interaction.user
+        user_data = self.db.get_user(str(interaction.user.id))
+        target_data = self.db.get_user(str(target.id))
 
+        if target.bot:
+            await interaction.response.send_message(embed=discord.Embed(
+                title="Ошибка!",
+                description="Вы не можете дуэлировать с ботом.",
+                colour=discord.Colour.red()
+            ), ephemeral=True)
+            return
+        if amount < 10:
+            await interaction.response.send_message(embed=discord.Embed(
+                title="Ошибка!",
+                description="Минимальная сумма для дуэли - 10 <a:coins:1350287791254274078>",
+                colour=discord.Colour.red()
+            ),ephemeral=True)
+            return
+        
+        class DuelView(discord.ui.View):
+            def __init__(self, db):
+                super().__init__(timeout=180)
+                self.db = db
 
+            @discord.ui.button(label="Подтвердить",style=discord.ButtonStyle.green)
+            async def confirm_callback(self, button_interaction: Interaction, button: discord.ui.Button):
+                # Если запрос подтверждает не тот пользователь, которому была отправлена дуэль
+                if button_interaction.user.id != target.id:
+                    await button_interaction.response.send_message(embed=discord.Embed(
+                        title="Ошибка!",
+                        description="Вы не можете подтвердить запрос на дуэль за другого пользователя.",
+                        colour=discord.Colour.red()
+                    ),ephemeral=True)
+                    return
+                # Если у пользователя недостаточно монет на балансе
+                if button_interaction.user.id == target.id and target_data['balance'] < amount:
+                    await button_interaction.response.send_message(embed=discord.Embed(
+                        title="Ошибка!",
+                        description="У вас недостаточно монет для подтверждения запроса.",
+                        colour=discord.Colour.red()
+                    ),ephemeral=True)
+                    return
+                
+                await button_interaction.response.edit_message(embed=discord.Embed(
+                    title="Дуэль началась!",
+                    description=f"Дуэль между {duel_sender.mention} и {target.mention} началась! Подождите 5 секунд...",
+                    colour=discord.Colour.blue()
+                ),view=None)
 
+                await asyncio.sleep(3)
 
+                winner_id = random.choice([user_data['user_id'], target_data['user_id']])
+                winner = interaction.guild.get_member(winner_id)
+                loser = interaction.guild.get_member(user_data['user_id'] if winner_id == target_data['user_id'] else target_data['user_id'])
+                
+                self.db.update_balance(str(winner_id), int(amount*0.9), "+")
+                self.db.update_balance(str(loser.id), amount, "-")
+                
+                embed = discord.Embed(
+                    title="Дуэль завершена!",
+                    description=f"{winner.mention} выиграл дуэль и получил {int(amount*0.9)} <a:coins:1350287791254274078>!",
+                    colour=discord.Colour.green())
+                
+                if winner.avatar.url is not None:
+                    embed.set_thumbnail(url=winner.avatar.url)
+
+                await button_interaction.followup.edit_message(message_id=button_interaction.message.id,embed=embed,view=None)
+            
+            @discord.ui.button(label="Отменить",style=discord.ButtonStyle.red)
+            async def cancel_callback(self, button_interaction: Interaction, button: discord.ui.Button):
+                # Если запрос подтверждает не тот пользователь, которому была отправлена дуэль
+                if button_interaction.user.id != target.id:
+                    await button_interaction.response.send_message(embed=discord.Embed(
+                        title="Ошибка!",
+                        description="Вы не можете отменить запрос на дуэль за другого пользователя.",
+                        colour=discord.Colour.red()
+                    ),ephemeral = True)
+                    return
+                
+                embed = discord.Embed(
+                    title="Отмена дуэли.",
+                    description=f"{duel_sender.mention}, пользователь {target.mention} отменил дуэль.",
+                    colour=discord.Colour.red()
+                )
+                duel_sender_avatar = duel_sender.avatar.url
+
+                if duel_sender_avatar is not None:
+                    embed.set_thumbnail(url=duel_sender_avatar)
+                await button_interaction.response.edit_message(embed=embed,view=None)
+
+        view = DuelView(self.db)
+        embed = discord.Embed(
+            title="Дуэль.",
+            description=f"{target.mention}, пользователь {duel_sender.mention} отправил вам запрос на дуэль суммой {amount} <a:coins:1350287791254274078>!",
+            colour=discord.Colour.blue()
+        )
+        duel_sender_avatar = duel_sender.avatar.url
+        if duel_sender_avatar is not None:
+            embed.set_thumbnail(url=duel_sender_avatar)
+        await interaction.response.send_message(embed=embed,view=view)
 
 async def setup(bot):
     await bot.add_cog(Economy(bot))
