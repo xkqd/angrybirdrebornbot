@@ -16,11 +16,14 @@ class Economy(commands.Cog):
         user_avatar = user.avatar.url
         embed = discord.Embed(
             title=f"Баланс — {user.name}",
-            description=f"Баланс: {user_data['balance']} <a:coins:1350287791254274078>",
-            color=discord.Color.green()
+            color=discord.Color.dark_gray()
         )
         if user_avatar is not None:
             embed.set_thumbnail(url=user_avatar)
+        
+        embed.add_field(name="Монеты", value=f"```{user_data['balance']}```", inline=True)
+        embed.add_field(name="Поинты", value=f"```{user_data['point_balance']}```", inline=True)
+
         await interaction.response.send_message(embed=embed)
 
 
