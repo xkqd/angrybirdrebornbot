@@ -16,13 +16,13 @@ class Economy(commands.Cog):
         if user is None:
             user = interaction.user
         user_data = self.db.get_user(str(user.id))
-        user_avatar = user.avatar.url
+        user_avatar = user.avatar
         embed = discord.Embed(
             title=f"Баланс — {user.name}",
             color=discord.Color.dark_gray()
         )
         if user_avatar is not None:
-            embed.set_thumbnail(url=user_avatar)
+            embed.set_thumbnail(url=user_avatar.url)
         
         embed.add_field(name="Монеты", value=f"```{user_data['balance']}```", inline=True)
         embed.add_field(name="Поинты", value=f"```{user_data['point_balance']}```", inline=True)
@@ -39,7 +39,7 @@ class Economy(commands.Cog):
         last_claim = user_data['last_claim']
         time_passed = current_time - last_claim
         # Эмбед для вывода награды
-        user_avatar = interaction.user.avatar.url
+        user_avatar = interaction.user.avatar
         next_claim_time2 = current_time + 43200
         embed = discord.Embed(
                     title="Временная награда.",
@@ -47,7 +47,7 @@ class Economy(commands.Cog):
                     color=discord.Color.green()
                     )
         if user_avatar is not None:
-            embed.set_thumbnail(url=user_avatar)
+            embed.set_thumbnail(url=user_avatar.url)
         if time_passed >= 43200:  # 12 часов в секундах
             self.db.update_balance(str(interaction.user.id), 50, "+")
             self.db.update_claim_time(str(interaction.user.id))
@@ -76,7 +76,7 @@ class Economy(commands.Cog):
 
         user_data = self.db.get_user(str(interaction.user.id))
         target_data = self.db.get_user(str(target.id))
-        user_avatar = interaction.user.avatar.url
+        user_avatar = interaction.user.avatar
 
         # Создаем класс для кнопок
         class TransferView(discord.ui.View):
@@ -100,7 +100,7 @@ class Economy(commands.Cog):
                         color=discord.Color.green()
                     )
                     if user_avatar is not None:
-                        embed.set_thumbnail(url=user_avatar)
+                        embed.set_thumbnail(url=user_avatar.url)
                     self.db.update_balance(str(interaction.user.id), amount, "-")
                     self.db.update_balance(str(target.id), int(amount*0.9), "+")
                     await button_interaction.response.edit_message(embed=embed,view=None)
@@ -132,7 +132,7 @@ class Economy(commands.Cog):
             color=discord.Color.green()
         )
         if user_avatar is not None:
-            embed.set_thumbnail(url=user_avatar)
+            embed.set_thumbnail(url=user_avatar.url)
         await interaction.response.send_message(embed=embed, view=view)
 
     # Команда для дуэли на монеты с другим пользователем
@@ -201,7 +201,7 @@ class Economy(commands.Cog):
                     description=f"{winner.mention} выиграл дуэль и получил {int(amount*0.9)} <a:coins:1350287791254274078>!",
                     colour=discord.Colour.green())
                 
-                if winner.avatar.url is not None:
+                if winner.avatar is not None:
                     embed.set_thumbnail(url=winner.avatar.url)
 
                 await button_interaction.followup.edit_message(message_id=button_interaction.message.id,embed=embed,view=None)
@@ -222,10 +222,10 @@ class Economy(commands.Cog):
                     description=f"{duel_sender.mention}, пользователь {target.mention} отменил дуэль.",
                     colour=discord.Colour.red()
                 )
-                duel_sender_avatar = duel_sender.avatar.url
+                duel_sender_avatar = duel_sender.avatar
 
                 if duel_sender_avatar is not None:
-                    embed.set_thumbnail(url=duel_sender_avatar)
+                    embed.set_thumbnail(url=duel_sender_avatar.url)
                 await button_interaction.response.edit_message(embed=embed,view=None)
 
         view = DuelView(self.db)
@@ -234,9 +234,9 @@ class Economy(commands.Cog):
             description=f"{target.mention}, пользователь {duel_sender.mention} отправил вам запрос на дуэль суммой {amount} <a:coins:1350287791254274078>!",
             colour=discord.Colour.blue()
         )
-        duel_sender_avatar = duel_sender.avatar.url
+        duel_sender_avatar = duel_sender.avatar
         if duel_sender_avatar is not None:
-            embed.set_thumbnail(url=duel_sender_avatar)
+            embed.set_thumbnail(url=duel_sender_avatar.url)
         await interaction.response.send_message(embed=embed,view=view)
 
 async def setup(bot):

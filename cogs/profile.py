@@ -11,7 +11,7 @@ class Profile(commands.Cog):
     async def command_profile(self, interaction: Interaction, user: User = None):
         if user is None:
             user_data = self.db.get_user(str(interaction.user.id))
-            user_avatar = interaction.user.avatar.url
+            user_avatar = interaction.user.avatar
             embed = discord.Embed(
                 title=f"Профиль — {interaction.user.name}",
                 description=f"\nГолосовая активность: {user_data['voice_time']} мин.\nСообщений: {user_data['messages']}",
@@ -23,18 +23,18 @@ class Profile(commands.Cog):
 
 
             if user_avatar is not None:
-                embed.set_thumbnail(url=user_avatar)
+                embed.set_thumbnail(url=user_avatar.url)
             await interaction.response.send_message(embed=embed)
             return
             
         user_data = self.db.get_user(str(user.id))
-        user_avatar = user.avatar.url
+        user_avatar = user.avatar
         embed = discord.Embed(
             title=f"Профиль — {user.name}",
             description=f"Баланс: {user_data['balance']} <a:coins:1350287791254274078>\nГолосовая активность: {user_data['voice_time']} мин.",
             color=discord.Color.green())
         if user_avatar is not None:
-            embed.set_thumbnail(url=user_avatar)
+            embed.set_thumbnail(url=user_avatar.url)
         await interaction.response.send_message(embed=embed)
 
 async def setup(bot):
