@@ -10,7 +10,7 @@ class Top(commands.Cog):
 
     @app_commands.command(name="top", description="Проверить топ пользователей.")
     async def command_top(self, interaction: Interaction):
-        # Получаем топ пользователей по балансу, сообщениям и голосовому времени
+        # Получаем топ пользователей по балансу, сообщениям и голосовому времени и сортируем их по убыванию
         top_users_balance = sorted(self.db.get_all_users(), key=lambda x: x['balance'], reverse=True)[:10]
         top_users_messages = sorted(self.db.get_all_users(), key=lambda x: x['messages'], reverse=True)[:10]
         top_users_voice = sorted(self.db.get_all_users(), key=lambda x: x['voice_time'], reverse=True)[:10]
@@ -66,7 +66,7 @@ class Top(commands.Cog):
             def __init__(self):
                 super().__init__(timeout=120)  # Тайм-аут 60 секунд
                 self.add_item(TopView())
-
+            # Отключаем шторку для выбора категории
             async def on_timeout(self):
                 for child in self.children:
                     child.disabled = True
