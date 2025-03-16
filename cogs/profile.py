@@ -14,9 +14,14 @@ class Profile(commands.Cog):
             user_avatar = interaction.user.avatar.url
             embed = discord.Embed(
                 title=f"Профиль — {interaction.user.name}",
-                description=f"Баланс: {user_data['balance']} <a:coins:1350287791254274078>\nГолосовая активность: {user_data['voice_time']} мин.\nСообщений: {user_data['messages']}",
-                color=discord.Color.green()
+                description=f"\nГолосовая активность: {user_data['voice_time']} мин.\nСообщений: {user_data['messages']}",
+                color=discord.Color.dark_gray()
             )
+
+            embed.add_field(name="Монеты", value=f"```{user_data['balance']}```", inline=True)
+            embed.add_field(name="Поинты", value=f"```{user_data['point_balance']}```", inline=True)
+
+
             if user_avatar is not None:
                 embed.set_thumbnail(url=user_avatar)
             await interaction.response.send_message(embed=embed)
