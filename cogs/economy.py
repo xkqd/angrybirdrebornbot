@@ -137,7 +137,7 @@ class Economy(commands.Cog):
 
     # Команда для дуэли на монеты с другим пользователем
     @app_commands.command(name="duel", description="Дуэль на монеты с другим пользователем.")
-    async def command_duel(self, interaction: Interaction, target: User, amount: int):
+    async def command_duel(self, interaction: Interaction, target: User, amount: app_commands.Range[int, 10]):
         duel_sender = interaction.user
         user_data = self.db.get_user(str(interaction.user.id))
         target_data = self.db.get_user(str(target.id))
@@ -148,13 +148,6 @@ class Economy(commands.Cog):
                 description="Вы не можете дуэлировать с ботом.",
                 colour=discord.Colour.red()
             ), ephemeral=True)
-            return
-        if amount < 10:
-            await interaction.response.send_message(embed=discord.Embed(
-                title="Ошибка!",
-                description="Минимальная сумма для дуэли - 10 <a:coins:1350287791254274078>",
-                colour=discord.Colour.red()
-            ),ephemeral=True)
             return
         
         class DuelView(discord.ui.View):
@@ -181,13 +174,17 @@ class Economy(commands.Cog):
                     ),ephemeral=True)
                     return
                 
-                await button_interaction.response.edit_message(embed=discord.Embed(
+                embed_gif = discord.Embed(
                     title="Дуэль началась!",
-                    description=f"Дуэль между {duel_sender.mention} и {target.mention} началась! Подождите 5 секунд...",
+                    description=f"Дуэль между {duel_sender.mention} и {target.mention} началась!",
                     colour=discord.Colour.blue()
-                ),view=None)
+                )
 
-                await asyncio.sleep(3)
+                embed_gif.set_image(url="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExYm03OWhqOXVrMDBodXoweWJlY3I2a2Y4YzhjajJ3cTlxNjAxbnFlayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/lafkzELQ632WBXExsh/giphy.gif")
+
+                await button_interaction.response.edit_message(embed=embed_gif,view=None)
+
+                await asyncio.sleep(5)
 
                 winner_id = random.choice([user_data['user_id'], target_data['user_id']])
                 winner = interaction.guild.get_member(winner_id)
