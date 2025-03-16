@@ -34,9 +34,10 @@ class Economy(commands.Cog):
         time_passed = current_time - last_claim
         # Эмбед для вывода награды
         user_avatar = interaction.user.avatar.url
+        next_claim_time2 = current_time + 43200
         embed = discord.Embed(
                     title="Временная награда.",
-                    description=f"{interaction.user.mention}, вы забрали свои 50 <a:coins:1350287791254274078> Возвращайтесь через 12 часов.",
+                    description=f"{interaction.user.mention}, вы забрали свои 50 <a:coins:1350287791254274078> Возвращайтесь <t:{next_claim_time2}:R>.",
                     color=discord.Color.green()
                     )
         if user_avatar is not None:
