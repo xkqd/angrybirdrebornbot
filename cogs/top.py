@@ -30,36 +30,39 @@ class Top(commands.Cog):
                         color=discord.Color.blue()
                     )
                     for index, user in enumerate(top_users_balance, start=1):
-                        user_ = interaction.guild.get_member(int(user['user_id']))
-                        embed.add_field(
-                            name=f"{index}. Пользователь {user_.name}",
-                            value=f"Баланс: {user['balance']} монет",
-                            inline=False
-                        )
+                        if user['balance'] > 0:
+                            user_ = interaction.guild.get_member(int(user['user_id']))
+                            embed.add_field(
+                                name=f"{index}. Пользователь {user_.name}",
+                                value=f"Баланс: {user['balance']} монет",
+                                inline=False
+                            )
                 elif self.values[0] == "messages":
                     embed = discord.Embed(
                         title="Топ пользователей по сообщениям",
                         color=discord.Color.blue()
                     )
                     for index, user in enumerate(top_users_messages, start=1):
-                        user_ = interaction.guild.get_member(int(user['user_id']))
-                        embed.add_field(
-                            name=f"{index}. Пользователь {user_.name}",
-                            value=f"Сообщений: {user['messages']}",
-                            inline=False
-                        )
+                        if user['messages'] > 0:
+                            user_ = interaction.guild.get_member(int(user['user_id']))
+                            embed.add_field(
+                                name=f"{index}. Пользователь {user_.name}",
+                               value=f"Сообщений: {user['messages']}",
+                                inline=False
+                            )
                 elif self.values[0] == "voice_time":
                     embed = discord.Embed(
                         title="Топ пользователей по голосовому времени",
                         color=discord.Color.blue()
                     )
                     for index, user in enumerate(top_users_voice, start=1):
-                        user_ = interaction.guild.get_member(int(user['user_id']))
-                        embed.add_field(
-                            name=f"{index}. Пользователь {user_.name}",
-                            value=f"Голосовое время: {user['voice_time']} минут",
-                            inline=False
-                        )
+                        if user['voice_time'] > 0:
+                            user_ = interaction.guild.get_member(int(user['user_id']))
+                            embed.add_field(
+                                name=f"{index}. Пользователь {user_.name}",
+                                value=f"Голосовое время: {user['voice_time']} минут",
+                                inline=False
+                            )
                 await interaction.response.edit_message(embed=embed, view=self.view)
 
         class TopViewTimeout(ui.View):
