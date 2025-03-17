@@ -172,7 +172,7 @@ class Marry(commands.Cog):
                 )
 
                 if user_avatar is not None:
-                    embed.set_thumbnail(user_avatar.url)
+                    embed.set_thumbnail(url=user_avatar.url)
                 await button_interaction.response.edit_message(embed=embed,view=None)
 
             @discord.ui.button(label="Отменить",style=discord.ButtonStyle.red)
