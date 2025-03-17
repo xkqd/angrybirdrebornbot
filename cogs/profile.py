@@ -13,11 +13,11 @@ class Profile(commands.Cog):
             user_data = self.db.get_user(str(interaction.user.id))
             user_avatar = interaction.user.avatar
             user_married_with = None
-            if user_data['married_with'] is not None:
+            if user_data['married_with'] != "0":
                 user_married_with = interaction.guild.get_member(int(user_data['married_with']))
             embed = discord.Embed(
                 title=f"Профиль — {interaction.user.name}",
-                description=f"\nГолосовая активность: {user_data['voice_time']} мин.\nСообщений: {user_data['messages']}\nПомолвлен с: {user_married_with.mention if user_data['married_with'] == user_married_with.id else "Ни с кем"}",
+                description=f"\nГолосовая активность: {user_data['voice_time']} мин.\nСообщений: {user_data['messages']}\nПартнёр: {user_married_with.mention if user_married_with != None  else "отсутствует."}",
                 color=discord.Color.dark_gray()
             )
 
@@ -31,10 +31,17 @@ class Profile(commands.Cog):
             
         user_data = self.db.get_user(str(user.id))
         user_avatar = user.avatar
+        user_married_with = None
+        if user_data['married_with'] != "0":
+            user_married_with = interaction.guild.get_member(int(user_data['married_with']))
         embed = discord.Embed(
-            title=f"Профиль — {user.name}",
-            description=f"Баланс: {user_data['balance']} <a:coins:1350287791254274078>\nГолосовая активность: {user_data['voice_time']} мин.",
-            color=discord.Color.green())
+                title=f"Профиль — {interaction.user.name}",
+                description=f"\nГолосовая активность: {user_data['voice_time']} мин.\nСообщений: {user_data['messages']}\nПартнёр: {user_married_with.mention if user_married_with != None  else "отсутствует."}",
+                color=discord.Color.dark_gray()
+            )
+
+        embed.add_field(name="Монеты", value=f"```{user_data['balance']}```", inline=True)
+        embed.add_field(name="Поинты", value=f"```{user_data['point_balance']}```", inline=True)
         if user_avatar is not None:
             embed.set_thumbnail(url=user_avatar.url)
         await interaction.response.send_message(embed=embed)

@@ -21,6 +21,13 @@ class Economy(commands.Cog):
             title=f"Баланс — {user.name}",
             color=discord.Color.dark_gray()
         )
+        if user.bot:
+            await interaction.response.send_message(embed=discord.Embed(
+                title="Баланс",
+                description="Вы не можете проверить баланс бота.",
+                colour=discord.Colour.red()
+                ),ephemeral=True)
+            return
         if user_avatar is not None:
             embed.set_thumbnail(url=user_avatar.url)
         
@@ -87,10 +94,10 @@ class Economy(commands.Cog):
             @discord.ui.button(label="Подтвердить", style=discord.ButtonStyle.green)
             async def confirm_callback(self,button_interaction: Interaction,button: discord.ui.Button):
                 # Остальной код confirm_callback без изменений
-                if user_data['user_id'] != button_interaction.user.id:
+                if interaction.user.id != button_interaction.user.id:
                     await button_interaction.response.send_message(embed=discord.Embed(
                         title="Ошибка!",
-                        description="Вы не можете подтвердить перевод другого пользователя.",
+                        description="Вы не можете подтвердить перевод за другого пользователя.",
                         colour=discord.Colour.red()),ephemeral=True)
                     return
                 if user_data['balance'] >= amount:
@@ -113,10 +120,10 @@ class Economy(commands.Cog):
             @discord.ui.button(label="Отмена", style=discord.ButtonStyle.red)
             async def cancel_callback(self,button_interaction:Interaction,button: discord.ui.Button, ):
                 # Остальной код cancel_callback без изменений
-                if user_data['user_id'] != button_interaction.user.id:
+                if interaction.user.id != button_interaction.user.id:
                     await button_interaction.response.send_message(embed=discord.Embed(
                         title="Ошибка!",
-                        description="Вы не можете отменить перевод другого пользователя.",
+                        description="Вы не можете отменить действие за другого пользователя.",
                         colour=discord.Colour.red()),ephemeral=True)
                     return
                 
@@ -141,21 +148,28 @@ class Economy(commands.Cog):
         if target.bot:
             await interaction.response.send_message(embed=discord.Embed(
                 title="Дуэль",
-                description="Вы не можете сражаться с ботом.",
+                description="Вы не можете дуэлировать с ботом.",
                 colour=discord.Colour.red()
-            ),ephemeral=True)
+            ), ephemeral=True)
             return
         
+        if interaction.user.id == target.id:
+            await interaction.response.send_message(embed=discord.Embed(
+                title="Ошибка!",
+                description="Вы не можете дуэлировать самим с собой.",
+                colour=discord.Colour.red()
+            ), ephemeral=True)
+            return
         duel_sender = interaction.user
         user_data = self.db.get_user(str(interaction.user.id))
         target_data = self.db.get_user(str(target.id))
 
-        if target.bot:
+        if user_data['balance']<amount:
             await interaction.response.send_message(embed=discord.Embed(
-                title="Ошибка!",
-                description="Вы не можете дуэлировать с ботом.",
+                title="Дуэль",
+                description="У вас недостаточно монет для отправки дуэли.",
                 colour=discord.Colour.red()
-            ), ephemeral=True)
+            ),ephemeral=True)
             return
         
         class DuelView(discord.ui.View):
@@ -169,7 +183,7 @@ class Economy(commands.Cog):
                 if button_interaction.user.id != target.id:
                     await button_interaction.response.send_message(embed=discord.Embed(
                         title="Ошибка!",
-                        description="Вы не можете подтвердить запрос на дуэль за другого пользователя.",
+                        description="Вы не можете подтвердить действие за другого пользователя.",
                         colour=discord.Colour.red()
                     ),ephemeral=True)
                     return
@@ -217,7 +231,7 @@ class Economy(commands.Cog):
                 if button_interaction.user.id != target.id:
                     await button_interaction.response.send_message(embed=discord.Embed(
                         title="Ошибка!",
-                        description="Вы не можете отменить запрос на дуэль за другого пользователя.",
+                        description="Вы не можете отменить действие за другого пользователя.",
                         colour=discord.Colour.red()
                     ),ephemeral = True)
                     return
