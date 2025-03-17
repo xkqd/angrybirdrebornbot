@@ -167,7 +167,7 @@ class Marry(commands.Cog):
 
                 await button_interaction.response.edit_message(embed=discord.Embed(
                     title="Расторжение брака",
-                    description=f"{interaction.user}, ваш брак с пользователем {user_married_with.mention} был расторгнут.",
+                    description=f"{interaction.user.mention}, ваш брак с пользователем {user_married_with.mention} был расторгнут.",
                     colour=discord.Colour.red()
                 ),view=None)
 
