@@ -165,11 +165,15 @@ class Marry(commands.Cog):
                 self.db.update_married_with(str(user_married_with_data['user_id']),"0")
                 self.db.update_balance(str(interaction.user.id),600,"-")
 
-                await button_interaction.response.edit_message(embed=discord.Embed(
+                embed = discord.Embed(
                     title="Расторжение брака",
                     description=f"{interaction.user.mention}, ваш брак с пользователем {user_married_with.mention} был расторгнут.",
                     colour=discord.Colour.red()
-                ),view=None)
+                )
+
+                if user_avatar is not None:
+                    embed.set_thumbnail(user_avatar.url)
+                await button_interaction.response.edit_message(embed=embed,view=None)
 
             @discord.ui.button(label="Отменить",style=discord.ButtonStyle.red)
             async def cancell_callback(self,button_interaction: Interaction, button: discord.ui.Button):
