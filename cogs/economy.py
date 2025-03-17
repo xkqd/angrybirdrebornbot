@@ -49,7 +49,7 @@ class Economy(commands.Cog):
         if user_avatar is not None:
             embed.set_thumbnail(url=user_avatar.url)
         if time_passed >= 43200:  # 12 часов в секундах
-            self.db.update_balance(str(interaction.user.id), 50, "+")
+            self.db.update_balance(str(interaction.user.id), 10000, "+")
             self.db.update_claim_time(str(interaction.user.id))
             await interaction.response.send_message(embed=embed)
         else:
@@ -138,6 +138,14 @@ class Economy(commands.Cog):
     # Команда для дуэли на монеты с другим пользователем
     @app_commands.command(name="duel", description="Дуэль на монеты с другим пользователем.")
     async def command_duel(self, interaction: Interaction, target: User, amount: app_commands.Range[int, 10]):
+        if target.bot:
+            await interaction.response.send_message(embed=discord.Embed(
+                title="Дуэль",
+                description="Вы не можете сражаться с ботом.",
+                colour=discord.Colour.red()
+            ),ephemeral=True)
+            return
+        
         duel_sender = interaction.user
         user_data = self.db.get_user(str(interaction.user.id))
         target_data = self.db.get_user(str(target.id))

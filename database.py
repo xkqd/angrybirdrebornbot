@@ -88,13 +88,9 @@ class Database:
         self.conn.commit()
 
     # Обновляет с кем помолвлен пользователь
-    def update_user_married_with(self, user_id: str, target_id: str):
+    def update_married_with(self, user_id: str, target_id: str):
         self.cursor.execute(
             "UPDATE users SET married_with = ? WHERE user_id = ?",
             (target_id,user_id,)
-        )
-        self.cursor.execute(
-            "UPDATE users SET married_with = ? WHERE user_id = ?",
-            (user_id,target_id,)
         )
         self.conn.commit()

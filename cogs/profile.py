@@ -12,15 +12,17 @@ class Profile(commands.Cog):
         if user is None:
             user_data = self.db.get_user(str(interaction.user.id))
             user_avatar = interaction.user.avatar
+            user_married_with = None
+            if user_data['married_with'] is not None:
+                user_married_with = interaction.guild.get_member(int(user_data['married_with']))
             embed = discord.Embed(
                 title=f"Профиль — {interaction.user.name}",
-                description=f"\nГолосовая активность: {user_data['voice_time']} мин.\nСообщений: {user_data['messages']}",
+                description=f"\nГолосовая активность: {user_data['voice_time']} мин.\nСообщений: {user_data['messages']}\nПомолвлен с: {user_married_with.mention if user_data['married_with'] == user_married_with.id else "Ни с кем"}",
                 color=discord.Color.dark_gray()
             )
 
             embed.add_field(name="Монеты", value=f"```{user_data['balance']}```", inline=True)
             embed.add_field(name="Поинты", value=f"```{user_data['point_balance']}```", inline=True)
-
 
             if user_avatar is not None:
                 embed.set_thumbnail(url=user_avatar.url)
