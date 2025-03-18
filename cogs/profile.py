@@ -6,7 +6,7 @@ class Profile(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.db = bot.db
-
+    #Не менять
     @app_commands.command(name="profile", description="Посмотреть профиль пользователя.")
     async def command_profile(self, interaction: Interaction, user: User = None):
         if user is None:

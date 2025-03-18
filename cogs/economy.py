@@ -160,7 +160,7 @@ class Economy(commands.Cog):
                 colour=discord.Colour.red()
             ), ephemeral=True)
             return
-        duel_sender = interaction.user
+        
         user_data = self.db.get_user(str(interaction.user.id))
         target_data = self.db.get_user(str(target.id))
 
@@ -198,7 +198,7 @@ class Economy(commands.Cog):
                 
                 embed_gif = discord.Embed(
                     title="Дуэль началась!",
-                    description=f"Дуэль между {duel_sender.mention} и {target.mention} началась!",
+                    description=f"Дуэль между {interaction.user.mention} и {target.mention} началась!",
                     colour=discord.Colour.blue()
                 )
 
@@ -238,25 +238,26 @@ class Economy(commands.Cog):
                 
                 embed = discord.Embed(
                     title="Отмена дуэли.",
-                    description=f"{duel_sender.mention}, пользователь {target.mention} отменил дуэль.",
+                    description=f"{interaction.user.mention}, пользователь {target.mention} отменил дуэль.",
                     colour=discord.Colour.red()
                 )
-                duel_sender_avatar = duel_sender.avatar
 
-                if duel_sender_avatar is not None:
-                    embed.set_thumbnail(url=duel_sender_avatar.url)
+                if interaction.user.avatar is not None:
+                    embed.set_thumbnail(url=interaction.user.avatar.url)
                 await button_interaction.response.edit_message(embed=embed,view=None)
 
         view = DuelView(self.db)
         embed = discord.Embed(
             title="Дуэль.",
-            description=f"{target.mention}, пользователь {duel_sender.mention} отправил вам запрос на дуэль суммой {amount} <a:coins:1350287791254274078>!",
+            description=f"{target.mention}, пользователь {interaction.user.mention} отправил вам запрос на дуэль суммой {amount} <a:coins:1350287791254274078>!",
             colour=discord.Colour.blue()
         )
-        duel_sender_avatar = duel_sender.avatar
-        if duel_sender_avatar is not None:
-            embed.set_thumbnail(url=duel_sender_avatar.url)
+        if interaction.user.avatar is not None:
+            embed.set_thumbnail(url=interaction.user.avatar.url)
         await interaction.response.send_message(embed=embed,view=view)
+
+        #@app_commands.command(name="casino",description="Испытайте свою удачу в рулетке.")
+        #@app_commands.describe
 
 async def setup(bot):
     await bot.add_cog(Economy(bot))
