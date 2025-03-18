@@ -4,8 +4,6 @@ import os
 from database import Database
 from discord.ext import commands
 from dotenv import load_dotenv
-#димас сосал хуй
-
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
