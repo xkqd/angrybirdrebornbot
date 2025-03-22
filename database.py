@@ -37,7 +37,7 @@ class Database:
         )
         return self.cursor.fetchall()
 
-    # Обновляет баланс пользователя
+    # Обновляет кол-во монет пользователя
     def update_balance(self, user_id: str, amount: int, act: str):
         if act == "+":
             self.cursor.execute(
@@ -50,6 +50,19 @@ class Database:
                 (amount, user_id)
             )
         self.conn.commit()
+    # Обновляет кол-во поинтов пользователя
+    def update_points(self,user_id: str, amount: int, act:str):
+        if act == "+":
+            self.cursor.execute(
+                "UPDATE users SET point_balance = point_balance + ? WHERE user_id = ?",
+                (amount,user_id)
+            )
+        else:
+            self.cursor.execute(
+                "UPDATE users SET point_balance = point_balance - ? WHERE user_id = ?",
+                (amount,user_id)
+            )
+            self.conn.commit()
     # Обновляет кол-во сообщений пользователя
     def add_message_to_counter(self,user_id: str):
         self.cursor.execute(

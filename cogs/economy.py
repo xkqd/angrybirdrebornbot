@@ -204,7 +204,7 @@ class Economy(commands.Cog):
 
                 embed_gif.set_image(url="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExYm03OWhqOXVrMDBodXoweWJlY3I2a2Y4YzhjajJ3cTlxNjAxbnFlayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/lafkzELQ632WBXExsh/giphy.gif")
 
-                await button_interaction.response.edit_message(embed=embed_gif,view=None)
+                await button_interaction.response.edit_message(embed=embed_gif, view=None)
 
                 await asyncio.sleep(5)
 
@@ -256,8 +256,91 @@ class Economy(commands.Cog):
             embed.set_thumbnail(url=interaction.user.avatar.url)
         await interaction.response.send_message(embed=embed,view=view)
 
-        #@app_commands.command(name="casino",description="Испытайте свою удачу в рулетке.")
-        #@app_commands.describe
+
+    colours =[
+        app_commands.Choice(name="Красный",value="red"),
+        app_commands.Choice(name="Черный",value="black")
+    ]
+   
+    @app_commands.command(name="casino",description="Испытайте свою удачу в рулетке.")
+    @app_commands.describe(colour="Выберите цвет")
+    @app_commands.choices(colour=colours)
+    async def command_casino(self, interaction: Interaction, amount: int, colour: app_commands.Choice[str]):
+
+        mp_colours = {}
+        mp_colours['black'] = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35]
+        mp_colours['red'] = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]
+        
+        choiced_number = random.randint(1,36)
+        user_avatar = interaction.user.avatar
+        
+        class CasinoView(discord.ui.View):
+                def __init__(self, db):
+                    super().__init__(timeout=180)  # 3 минуты
+                    self.db = db
+                
+                @discord.ui.button(label="Подтвердить",style=discord.ButtonStyle.green)
+                async def confirm_callback(self, button_interaction: Interaction, button: discord.ui.Button):
+                    if interaction.user.id != button_interaction.user.id:
+                        await button_interaction.response.send_message(embed=discord.Embed(
+                            title="Рулетка",
+                            description="Вы не можете подтвердить действие за другого пользователя.",
+                            colour=discord.Colour.red()
+                        ),ephemeral=True)
+                        return
+                    wait_for_result_embed = discord.Embed(
+                        title="Рулетка",
+                        description="Колесо начинает вращение… 🎡",
+                        colour=discord.Colour.blue()
+                    )
+                    wait_for_result_embed.set_image(url="https://i.imgur.com/ZIWWynX.gif")
+                    await button_interaction.response.edit_message(embed=wait_for_result_embed,view=None)
+                    await asyncio.sleep(5)
+
+                    if choiced_number in mp_colours[colour.value]:
+                        won_money = int(amount*1.5)
+                        self.db.update_balance(str(interaction.user.id),won_money-amount,"+")
+                        embed = discord.Embed(
+                            title="Рулетка",
+                            description=f"Поздравляем! Выпало число {choiced_number},его цвет {"Красный" if colour.value == 'red' else "Чёрный"}\n Вы выйграли {won_money}<a:coins:1350287791254274078>!"
+                        )
+                        if user_avatar is not None:
+                            embed.set_thumbnail(url=user_avatar.url)
+                        await button_interaction.followup.edit_message(message_id=button_interaction.message.id,embed=embed)
+                    else:
+                        self.db.update_balance(str(interaction.user.id),amount,"-")
+                        embed = discord.Embed(
+                            title="Рулетка",
+                            description=f"К сожалению вы проиграли.  Выпало число {choiced_number},его цвет {"Красный" if colour.value == 'red' else "Чёрный"}\n Вы проиграли {amount}<a:coins:1350287791254274078>!"
+                        )
+                        if user_avatar is not None:
+                            embed.set_thumbnail(url=user_avatar.url)
+                        await button_interaction.followup.edit_message(message_id=button_interaction.message.id,embed=embed)
+
+                @discord.ui.button(label="Отменить",style=discord.ButtonStyle.red)
+                async def cancell_callback(self, button_interaction: Interaction, button: discord.ui.Button):
+                    if interaction.user.id != button_interaction.user.id:
+                        await button_interaction.response.send_message(embed=discord.Embed(
+                            title="Рулетка",
+                            description="Вы не можете отменить действие за другого пользователя.",
+                            colour=discord.Colour.red()
+                        ),ephemeral=True)
+                        return
+                    await button_interaction.followup.edit_message(message_id=interaction.message.id,embed=discord.Embed(
+                        title="Рулетка",
+                        description="Вы отменили свою ставку.",
+                        colour=discord.Colour.red()
+                    ),view=None)
+
+        view=CasinoView(self.db)
+        embed = discord.Embed(
+            title="Рулетка",
+            description=f"Вы выбрали цвет: {colour.name}\nСумма ставки: {amount}<a:coins:1350287791254274078>"
+        )
+        if user_avatar is not None:
+            embed.set_thumbnail(url=user_avatar.url)
+        await interaction.response.send_message(embed=embed,view=view)
+
 
 async def setup(bot):
     await bot.add_cog(Economy(bot))
