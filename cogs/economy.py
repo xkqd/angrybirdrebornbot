@@ -302,7 +302,7 @@ class Economy(commands.Cog):
                         self.db.update_balance(str(interaction.user.id),won_money-amount,"+")
                         embed = discord.Embed(
                             title="Рулетка",
-                            description=f"Поздравляем! Выпало число {choiced_number},его цвет {"Красный" if colour.value == 'red' else "Чёрный"}\n Вы выйграли {won_money}<a:coins:1350287791254274078>!"
+                            description=f"Поздравляем! Выпало число {choiced_number},его цвет {"Красный" if colour.value == 'red' else "Чёрный"}\n Вы выиграли {won_money}<a:coins:1350287791254274078>!"
                         )
                         if user_avatar is not None:
                             embed.set_thumbnail(url=user_avatar.url)
@@ -311,7 +311,7 @@ class Economy(commands.Cog):
                         self.db.update_balance(str(interaction.user.id),amount,"-")
                         embed = discord.Embed(
                             title="Рулетка",
-                            description=f"К сожалению вы проиграли.  Выпало число {choiced_number},его цвет {"Красный" if colour.value == 'red' else "Чёрный"}\n Вы проиграли {amount}<a:coins:1350287791254274078>!"
+                            description=f"К сожалению вы проиграли. Выпало число {choiced_number},его цвет {"Чёрный" if colour.value == 'red' else "Красный"}\n Вы проиграли {amount}<a:coins:1350287791254274078>!"
                         )
                         if user_avatar is not None:
                             embed.set_thumbnail(url=user_avatar.url)
