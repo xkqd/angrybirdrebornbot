@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-
+#test
 class Bot(commands.Bot):
     def __init__(self):
         intents = discord.Intents.default()
