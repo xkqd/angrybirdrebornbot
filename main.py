@@ -37,7 +37,7 @@ class Bot(commands.Bot):
                         self.db.add_user(str(member.id))
                         added_users += 1
             
-            print(f'Бот {self.user} успешно запущен')
+            print(f'Bot Online')
             print(f'Добавлено {added_users} новых пользователей в базу данных')
         except Exception as e:
             print(f'Ошибка при инициализации: {str(e)}')

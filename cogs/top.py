@@ -58,11 +58,14 @@ class Top(commands.Cog):
                     for index, user in enumerate(top_users_voice, start=1):
                         if user['voice_time'] > 0:
                             user_ = interaction.guild.get_member(int(user['user_id']))
-                            embed.add_field(
-                                name=f"{index}. Пользователь {user_.name}",
-                                value=f"Голосовое время: {user['voice_time']} минут",
-                                inline=False
-                            )
+                            if user_ is not None:
+                                embed.add_field(
+                                    name=f"{index}. Пользователь {user_.name}",
+                                    value=f"Голосовое время: {user['voice_time']} минут",
+                                    inline=False
+                                )
+                            else:
+                                index-=1
                 await interaction.response.edit_message(embed=embed, view=self.view)
 
         class TopViewTimeout(ui.View):
