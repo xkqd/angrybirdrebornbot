@@ -29,20 +29,6 @@ class Bot(commands.Bot):
         await self.tree.sync()
         print('Команды синхронизированы')
 
-    async def on_ready(self):
-        try:
-            added_users = 0
-            for guild in self.guilds:
-                for member in guild.members:
-                    if not member.bot and not self.db.get_user(str(member.id)):
-                        self.db.add_user(str(member.id))
-                        added_users += 1
-            
-            print(f'Bot Online')
-            print(f'Добавлено {added_users} новых пользователей в базу данных')
-        except Exception as e:
-            print(f'Ошибка при инициализации: {str(e)}')
-
 bot = Bot()
 
 @bot.tree.error

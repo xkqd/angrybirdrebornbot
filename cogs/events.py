@@ -8,6 +8,23 @@ class Events(commands.Cog):
         self.db = bot.db
 
     @commands.Cog.listener()
+    async def on_ready(self):
+        try:
+            added_users = 0
+            for guild in self.bot.guilds:
+                for member in guild.members:
+                    if not member.bot and not self.db.get_user(str(member.id)):
+                        self.db.add_user(str(member.id))
+                        added_users += 1
+                    if member.voice is not None:
+                        self.db.update_last_voice_time(str(member.id))
+            
+            print(f'Bot Online')
+            print(f'Добавлено {added_users} новых пользователей в базу данных')
+        except Exception as e:
+            print(f'Ошибка при инициализации: {str(e)}')
+
+    @commands.Cog.listener()
     async def on_message(self, message):
         if message.author.bot:
             return

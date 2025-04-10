@@ -18,9 +18,9 @@ class Top(commands.Cog):
         class TopView(ui.Select):
             def __init__(self):
                 super().__init__(placeholder="Выберите категорию.", options=[
-                    discord.SelectOption(label="Баланс", value="balance"),
-                    discord.SelectOption(label="Сообщения", value="messages"),
-                    discord.SelectOption(label="Голосовое время", value="voice_time")
+                    discord.SelectOption(label="Топ пользователей по балансу", value="balance"),
+                    discord.SelectOption(label="Топ пользователей по сообщениям", value="messages"),
+                    discord.SelectOption(label="Топ пользователей по голосовому времени", value="voice_time")
                 ])
 
             async def callback(self, interaction: Interaction):
@@ -70,16 +70,27 @@ class Top(commands.Cog):
 
         class TopViewTimeout(ui.View):
             def __init__(self):
-                super().__init__(timeout=120)  # Тайм-аут 60 секунд
+                super().__init__(timeout=120)  # Тайм-аут 120 секунд
                 self.add_item(TopView())
             # Отключаем шторку для выбора категории
             async def on_timeout(self):
                 for child in self.children:
                     child.disabled = True
                 await self.message.edit(view=self)
-
+        embed = discord.Embed(
+                title="Топ пользователей по балансу",
+                color=discord.Color.blue()
+            )
+        for index, user in enumerate(top_users_balance, start=1):
+            if user['balance'] > 0:
+                user_ = interaction.guild.get_member(int(user['user_id']))
+                embed.add_field(
+                    name=f"{index}. Пользователь {user_.name}",
+                    value=f"Баланс: {user['balance']} монет",
+                    inline=False
+                    )
         view = TopViewTimeout()
-        await interaction.response.send_message("Выберите категорию для отображения топа:", view=view)
+        await interaction.response.send_message(embed=embed, view=view)
         view.message = await interaction.original_response()
 
 async def setup(bot):
