@@ -2,10 +2,17 @@ import pymysql
 from datetime import datetime
 from config import host, user, password, db_name
 
+load_dotenv()
+host = os.getenv('DB_HOST')
+user = os.getenv('DB_USER')
+password = os.getenv('DB_PASSWORD')
+db_name = os.getenv('DB_NAME')
+port = os.getenv('DB_PORT')
+
 class Database:
     def __init__(self):
         self.conn = pymysql.connect(host=host,
-                                    port=3306,
+                                    port=port,
                                     user=user,
                                     password=password,
                                     db=db_name,
