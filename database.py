@@ -1,6 +1,5 @@
 import pymysql
 from datetime import datetime
-from config import host, user, password, db_name
 
 load_dotenv()
 host = os.getenv('DB_HOST')
