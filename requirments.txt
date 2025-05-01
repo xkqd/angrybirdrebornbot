@@ -1,0 +1,3 @@
+pymysql
+discord.py
+python-dotenv
