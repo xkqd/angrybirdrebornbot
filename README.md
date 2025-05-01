@@ -44,7 +44,7 @@ pip install -r requirements.txt
 
 `/give` - use to transfer money to someone (commission is `10%`)
 
-`/casion` - gamble 🤑🤑🤑
+`/casino` - gamble 🤑🤑🤑
 
 ### Admin commands
 
