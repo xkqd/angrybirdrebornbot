@@ -14,8 +14,8 @@ class Bot(commands.Bot):
         intents.members = True
         intents.message_content = True
         
-        super().__init__(command_prefix="!", intents=intents)
         self.db = Database()
+        super().__init__(command_prefix="!", intents=intents)
 
     async def setup_hook(self):
         for filename in os.listdir('./cogs'):
